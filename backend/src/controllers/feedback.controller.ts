@@ -1,0 +1,173 @@
+import { Request, Response } from "express";
+import Feedback from "../models/Feedback";
+import { sendSuccess, sendError } from "../utils/response";
+
+// POST /api/feedback — Submit new feedback
+export const createFeedback = async (req: Request, res: Response) => {
+  try {
+    const {
+      title,
+      description,
+      category,
+      submitterName,
+      submitterEmail,
+    } = req.body;
+
+    const feedback = await Feedback.create({
+      title,
+      description,
+      category,
+      submitterName,
+      submitterEmail,
+    });
+
+    return sendSuccess(res, feedback, "Feedback submitted successfully", 201);
+  } catch (error: unknown) {
+    // Mongoose validation errors — return 400 with readable message
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "name" in error &&
+      (error as { name: string }).name === "ValidationError"
+    ) {
+      const mongoError = error as {
+        name: string;
+        errors: Record<string, { message: string }>;
+      };
+      const messages = Object.values(mongoError.errors).map(
+        (e) => e.message
+      );
+      return sendError(res, messages.join(", "), 400);
+    }
+    return sendError(res, "Failed to submit feedback", 500, error);
+  }
+};
+
+// GET /api/feedback — Get all feedback (supports ?category= and ?status= filters)
+export const getAllFeedback = async (req: Request, res: Response) => {
+  try {
+    const { category, status, page = "1", limit = "10" } = req.query;
+
+    // Build filter object dynamically
+    const filter: Record<string, unknown> = {};
+    if (category) filter.category = category;
+    if (status) filter.status = status;
+
+    const pageNum = Math.max(1, parseInt(page as string, 10));
+    const limitNum = Math.max(1, Math.min(50, parseInt(limit as string, 10)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [feedbackList, total] = await Promise.all([
+      Feedback.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      Feedback.countDocuments(filter),
+    ]);
+
+    return sendSuccess(
+      res,
+      {
+        feedback: feedbackList,
+        pagination: {
+          total,
+          page: pageNum,
+          limit: limitNum,
+          totalPages: Math.ceil(total / limitNum),
+        },
+      },
+      "Feedback fetched successfully"
+    );
+  } catch (error) {
+    return sendError(res, "Failed to fetch feedback", 500, error);
+  }
+};
+
+// GET /api/feedback/:id — Get single feedback item
+export const getFeedbackById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const feedback = await Feedback.findById(id);
+
+    if (!feedback) {
+      return sendError(res, "Feedback not found", 404);
+    }
+
+    return sendSuccess(res, feedback, "Feedback fetched successfully");
+  } catch (error: unknown) {
+    // Invalid MongoDB ObjectId
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "name" in error &&
+      (error as { name: string }).name === "CastError"
+    ) {
+      return sendError(res, "Invalid feedback ID", 400);
+    }
+    return sendError(res, "Failed to fetch feedback", 500, error);
+  }
+};
+
+// PATCH /api/feedback/:id — Update status (admin only — will add auth middleware later)
+export const updateFeedbackStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["New", "In Review", "Resolved"].includes(status)) {
+      return sendError(
+        res,
+        "Invalid status. Must be New, In Review, or Resolved",
+        400
+      );
+    }
+
+    const feedback = await Feedback.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true, runValidators: true }
+    );
+
+    if (!feedback) {
+      return sendError(res, "Feedback not found", 404);
+    }
+
+    return sendSuccess(res, feedback, "Status updated successfully");
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "name" in error &&
+      (error as { name: string }).name === "CastError"
+    ) {
+      return sendError(res, "Invalid feedback ID", 400);
+    }
+    return sendError(res, "Failed to update feedback", 500, error);
+  }
+};
+
+// DELETE /api/feedback/:id — Delete feedback (admin only)
+export const deleteFeedback = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const feedback = await Feedback.findByIdAndDelete(id);
+
+    if (!feedback) {
+      return sendError(res, "Feedback not found", 404);
+    }
+
+    return sendSuccess(res, null, "Feedback deleted successfully");
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "name" in error &&
+      (error as { name: string }).name === "CastError"
+    ) {
+      return sendError(res, "Invalid feedback ID", 400);
+    }
+    return sendError(res, "Failed to delete feedback", 500, error);
+  }
+};
