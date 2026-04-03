@@ -1,0 +1,257 @@
+'use client';
+
+import { useState, FormEvent, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { loginAdmin, saveToken, isLoggedIn } from '@/lib/auth';
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
+
+  // If already logged in, go straight to dashboard
+  useEffect(() => {
+    if (isLoggedIn()) router.replace('/dashboard');
+  }, [router]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.trim() || !password.trim()) {
+      setError('Email and password are required');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { token } = await loginAdmin(email.trim(), password);
+      saveToken(token);
+      router.push('/dashboard');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main className="login-root">
+      <div className="bg-grid" aria-hidden="true" />
+      <div className="blob blob-1" aria-hidden="true" />
+      <div className="blob blob-2" aria-hidden="true" />
+
+      <div className="login-container">
+        {/* Logo */}
+        <div className="logo-mark">
+          <span className="logo-icon">⚡</span>
+          <span className="logo-text">FeedPulse</span>
+        </div>
+
+        {/* Card */}
+        <div className="card">
+          <div className="card-header">
+            <h1 className="card-title">Admin Login</h1>
+            <p className="card-subtitle">
+              Sign in to access the feedback dashboard.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} noValidate className="form">
+            {/* Email */}
+            <div className="field">
+              <label className="label" htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                className="input"
+                placeholder="admin@feedpulse.com"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                autoComplete="email"
+                autoFocus
+              />
+            </div>
+
+            {/* Password */}
+            <div className="field">
+              <label className="label" htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                className="input"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                autoComplete="current-password"
+              />
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="error-banner">
+                <span>⚠</span> {error}
+              </div>
+            )}
+
+            {/* Submit */}
+            <button type="submit" className="btn-submit" disabled={loading}>
+              <span className="btn-inner">
+                {loading ? (
+                  <><span className="spinner" /> Signing in…</>
+                ) : (
+                  <>Sign In →</>
+                )}
+              </span>
+            </button>
+          </form>
+        </div>
+
+        <p className="back-link">
+          <a href="/">← Back to feedback form</a>
+        </p>
+      </div>
+
+      <style jsx global>{`
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --bg: #0a0a0f; --surface: #12121a; --border: #1e1e2e;
+          --border-focus: #5b5bd6; --text: #e8e8f0; --muted: #7070a0;
+          --accent: #5b5bd6; --accent-2: #7c3aed;
+          --error: #ef4444; --radius: 14px; --radius-sm: 8px;
+        }
+
+        html, body {
+          background: var(--bg); color: var(--text);
+          font-family: 'DM Sans', 'Segoe UI', sans-serif;
+          min-height: 100vh; -webkit-font-smoothing: antialiased;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap');
+
+        .login-root {
+          min-height: 100vh; position: relative; overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
+          padding: 2rem 1rem;
+        }
+        .bg-grid {
+          position: fixed; inset: 0;
+          background-image:
+            linear-gradient(rgba(91,91,214,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(91,91,214,0.04) 1px, transparent 1px);
+          background-size: 48px 48px; pointer-events: none; z-index: 0;
+        }
+        .blob {
+          position: fixed; border-radius: 50%; filter: blur(80px);
+          opacity: 0.15; pointer-events: none; z-index: 0;
+          animation: drift 14s ease-in-out infinite alternate;
+        }
+        .blob-1 { width: 420px; height: 420px;
+          background: radial-gradient(circle, #5b5bd6, transparent);
+          top: -120px; left: -120px; }
+        .blob-2 { width: 360px; height: 360px;
+          background: radial-gradient(circle, #7c3aed, transparent);
+          bottom: -100px; right: -100px; animation-delay: -7s; }
+        @keyframes drift {
+          from { transform: translate(0,0) scale(1); }
+          to   { transform: translate(24px,16px) scale(1.06); }
+        }
+
+        .login-container {
+          position: relative; z-index: 1;
+          width: 100%; max-width: 420px;
+          display: flex; flex-direction: column;
+          align-items: center; gap: 1.5rem;
+          animation: fadeUp 0.5s ease both;
+        }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-mark {
+          display: flex; align-items: center; gap: 0.5rem;
+        }
+        .logo-icon { font-size: 1.4rem; }
+        .logo-text {
+          font-family: 'Syne', sans-serif; font-weight: 800;
+          font-size: 1.4rem; letter-spacing: -0.02em;
+          background: linear-gradient(135deg, #a5a5f5, #7c3aed);
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .card {
+          width: 100%;
+          background: var(--surface); border: 1px solid var(--border);
+          border-radius: var(--radius); padding: 2.25rem;
+          box-shadow: 0 0 0 1px rgba(91,91,214,0.06), 0 24px 64px rgba(0,0,0,0.5);
+        }
+        .card-header { margin-bottom: 1.75rem; }
+        .card-title {
+          font-family: 'Syne', sans-serif; font-weight: 700;
+          font-size: 1.5rem; letter-spacing: -0.02em; margin-bottom: 0.35rem;
+        }
+        .card-subtitle { color: var(--muted); font-size: 0.88rem; line-height: 1.5; }
+
+        .form { display: flex; flex-direction: column; gap: 1.1rem; }
+
+        .field { display: flex; flex-direction: column; gap: 0.4rem; }
+        .label {
+          font-size: 0.8rem; font-weight: 600; color: var(--muted);
+          text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .input {
+          width: 100%; background: var(--bg); border: 1px solid var(--border);
+          border-radius: var(--radius-sm); color: var(--text);
+          font-family: inherit; font-size: 0.95rem;
+          padding: 0.75rem 1rem;
+          transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+        }
+        .input::placeholder { color: #3a3a5a; }
+        .input:focus {
+          border-color: var(--border-focus);
+          box-shadow: 0 0 0 3px rgba(91,91,214,0.15);
+        }
+
+        .error-banner {
+          background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
+          border-radius: var(--radius-sm); padding: 0.7rem 1rem;
+          font-size: 0.85rem; color: #fca5a5;
+          display: flex; align-items: center; gap: 0.4rem;
+        }
+
+        .btn-submit {
+          width: 100%; padding: 0.875rem;
+          background: linear-gradient(135deg, var(--accent), var(--accent-2));
+          color: #fff; border: none; border-radius: var(--radius-sm);
+          font-family: 'Syne', sans-serif; font-weight: 700;
+          font-size: 1rem; cursor: pointer;
+          transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+          margin-top: 0.25rem;
+        }
+        .btn-submit:hover:not(:disabled) {
+          opacity: 0.92; transform: translateY(-1px);
+          box-shadow: 0 8px 24px rgba(91,91,214,0.35);
+        }
+        .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+        .btn-inner { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+
+        .spinner {
+          width: 15px; height: 15px;
+          border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+          border-radius: 50%; animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .back-link a {
+          color: var(--muted); font-size: 0.85rem;
+          text-decoration: none; transition: color 0.2s;
+        }
+        .back-link a:hover { color: var(--text); }
+      `}</style>
+    </main>
+  );
+}
