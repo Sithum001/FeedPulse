@@ -1,65 +1,408 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, ChangeEvent } from 'react';
+import FeedbackForm from '@/components/FeedbackForm';
+import SuccessCard from '@/components/SuccessCard';
+
+export default function HomePage() {
+  const [submitted, setSubmitted] = useState(false);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="page-root">
+      {/* Background grid texture */}
+      <div className="bg-grid" aria-hidden="true" />
+
+      {/* Floating accent blobs */}
+      <div className="blob blob-1" aria-hidden="true" />
+      <div className="blob blob-2" aria-hidden="true" />
+
+      <div className="container">
+        {/* Header */}
+        <header className="header">
+          <div className="logo-mark">
+            <span className="logo-icon">⚡</span>
+            <span className="logo-text">FeedPulse</span>
+          </div>
+          <p className="tagline">Your voice shapes the product.</p>
+        </header>
+
+        {/* Card */}
+        <div className="card">
+          {submitted ? (
+            <SuccessCard onReset={() => setSubmitted(false)} />
+          ) : (
+            <>
+              <div className="card-header">
+                <h1 className="card-title">Share Your Feedback</h1>
+                <p className="card-subtitle">
+                  Got a bug to report, a feature idea, or a suggestion?
+                  We read every submission.
+                </p>
+              </div>
+              <FeedbackForm onSuccess={() => setSubmitted(true)} />
+            </>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+        <footer className="footer">
+          <p>Built with care · FeedPulse © {new Date().getFullYear()}</p>
+        </footer>
+      </div>
+
+      <style jsx global>{`
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --bg:        #0a0a0f;
+          --surface:   #12121a;
+          --border:    #1e1e2e;
+          --border-focus: #5b5bd6;
+          --text:      #e8e8f0;
+          --muted:     #7070a0;
+          --accent:    #5b5bd6;
+          --accent-2:  #7c3aed;
+          --success:   #22c55e;
+          --error:     #ef4444;
+          --warning:   #f59e0b;
+          --radius:    14px;
+          --radius-sm: 8px;
+        }
+
+        html, body {
+          background: var(--bg);
+          color: var(--text);
+          font-family: 'DM Sans', 'Segoe UI', sans-serif;
+          min-height: 100vh;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap');
+
+        .page-root {
+          min-height: 100vh;
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem 1rem;
+        }
+
+        /* Subtle grid background */
+        .bg-grid {
+          position: fixed;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(91,91,214,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(91,91,214,0.04) 1px, transparent 1px);
+          background-size: 48px 48px;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        /* Ambient blobs */
+        .blob {
+          position: fixed;
+          border-radius: 50%;
+          filter: blur(80px);
+          opacity: 0.18;
+          pointer-events: none;
+          z-index: 0;
+          animation: drift 14s ease-in-out infinite alternate;
+        }
+        .blob-1 {
+          width: 520px; height: 520px;
+          background: radial-gradient(circle, #5b5bd6, transparent);
+          top: -160px; left: -160px;
+        }
+        .blob-2 {
+          width: 440px; height: 440px;
+          background: radial-gradient(circle, #7c3aed, transparent);
+          bottom: -120px; right: -120px;
+          animation-delay: -7s;
+        }
+        @keyframes drift {
+          from { transform: translate(0,0) scale(1); }
+          to   { transform: translate(30px, 20px) scale(1.08); }
+        }
+
+        /* Layout */
+        .container {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          max-width: 580px;
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+        }
+
+        /* Header */
+        .header {
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+          animation: fadeDown 0.5s ease both;
+        }
+        .logo-mark {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .logo-icon { font-size: 1.5rem; }
+        .logo-text {
+          font-family: 'Syne', sans-serif;
+          font-weight: 800;
+          font-size: 1.5rem;
+          letter-spacing: -0.02em;
+          background: linear-gradient(135deg, #a5a5f5, #7c3aed);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .tagline {
+          color: var(--muted);
+          font-size: 0.9rem;
+          letter-spacing: 0.01em;
+        }
+
+        /* Card */
+        .card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 2.5rem;
+          box-shadow:
+            0 0 0 1px rgba(91,91,214,0.06),
+            0 24px 64px rgba(0,0,0,0.5);
+          animation: fadeUp 0.5s ease 0.1s both;
+        }
+        .card-header { margin-bottom: 2rem; }
+        .card-title {
+          font-family: 'Syne', sans-serif;
+          font-weight: 700;
+          font-size: 1.6rem;
+          letter-spacing: -0.02em;
+          margin-bottom: 0.4rem;
+          color: var(--text);
+        }
+        .card-subtitle {
+          color: var(--muted);
+          font-size: 0.9rem;
+          line-height: 1.6;
+        }
+
+        /* Form elements (shared globals) */
+        .field { display: flex; flex-direction: column; gap: 0.4rem; }
+        .label {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: var(--muted);
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+        }
+        .label .required { color: var(--accent); margin-left: 2px; }
+
+        .input, .textarea, .select {
+          width: 100%;
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text);
+          font-family: inherit;
+          font-size: 0.95rem;
+          padding: 0.75rem 1rem;
+          transition: border-color 0.2s, box-shadow 0.2s;
+          outline: none;
+          appearance: none;
+        }
+        .input::placeholder,
+        .textarea::placeholder { color: #3a3a5a; }
+        .input:focus, .textarea:focus, .select:focus {
+          border-color: var(--border-focus);
+          box-shadow: 0 0 0 3px rgba(91,91,214,0.15);
+        }
+        .input.error-field, .textarea.error-field, .select.error-field {
+          border-color: var(--error);
+          box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+        }
+        .textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+        /* Select arrow */
+        .select-wrap { position: relative; }
+        .select-wrap::after {
+          content: '▾';
+          position: absolute;
+          right: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--muted);
+          pointer-events: none;
+          font-size: 0.8rem;
+        }
+        .select { padding-right: 2.5rem; cursor: pointer; }
+        .select option { background: var(--surface); }
+
+        /* Counter + error messages */
+        .field-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          min-height: 1.2rem;
+        }
+        .error-msg {
+          font-size: 0.78rem;
+          color: var(--error);
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+        .char-counter {
+          font-size: 0.78rem;
+          color: var(--muted);
+          margin-left: auto;
+        }
+        .char-counter.warn { color: var(--warning); }
+        .char-counter.good { color: var(--success); }
+
+        /* Row for optional fields */
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        /* Submit button */
+        .btn-submit {
+          width: 100%;
+          padding: 0.875rem;
+          background: linear-gradient(135deg, var(--accent), var(--accent-2));
+          color: #fff;
+          border: none;
+          border-radius: var(--radius-sm);
+          font-family: 'Syne', sans-serif;
+          font-weight: 700;
+          font-size: 1rem;
+          letter-spacing: 0.01em;
+          cursor: pointer;
+          transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+          position: relative;
+          overflow: hidden;
+          margin-top: 0.5rem;
+        }
+        .btn-submit:hover:not(:disabled) {
+          opacity: 0.92;
+          transform: translateY(-1px);
+          box-shadow: 0 8px 24px rgba(91,91,214,0.35);
+        }
+        .btn-submit:active:not(:disabled) { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+        .btn-submit .btn-inner {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+
+        /* Spinner */
+        .spinner {
+          width: 16px; height: 16px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: #fff;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* API error banner */
+        .api-error {
+          background: rgba(239,68,68,0.08);
+          border: 1px solid rgba(239,68,68,0.25);
+          border-radius: var(--radius-sm);
+          padding: 0.75rem 1rem;
+          font-size: 0.88rem;
+          color: #fca5a5;
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+          text-align: center;
+          color: #3a3a5a;
+          font-size: 0.78rem;
+          animation: fadeUp 0.5s ease 0.2s both;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeDown {
+          from { opacity: 0; transform: translateY(-12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Success card */
+        .success-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 1.25rem;
+          padding: 1rem 0;
+          animation: fadeUp 0.4s ease both;
+        }
+        .success-icon-wrap {
+          width: 72px; height: 72px;
+          border-radius: 50%;
+          background: rgba(34,197,94,0.12);
+          border: 1px solid rgba(34,197,94,0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 2rem;
+        }
+        .success-title {
+          font-family: 'Syne', sans-serif;
+          font-weight: 700;
+          font-size: 1.4rem;
+          color: var(--text);
+        }
+        .success-body {
+          color: var(--muted);
+          font-size: 0.92rem;
+          line-height: 1.6;
+          max-width: 360px;
+        }
+        .ai-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          background: rgba(91,91,214,0.12);
+          border: 1px solid rgba(91,91,214,0.2);
+          border-radius: 100px;
+          padding: 0.35rem 0.85rem;
+          font-size: 0.8rem;
+          color: #a5a5f5;
+        }
+        .btn-reset {
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--muted);
+          border-radius: var(--radius-sm);
+          padding: 0.65rem 1.5rem;
+          font-family: inherit;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: border-color 0.2s, color 0.2s;
+        }
+        .btn-reset:hover { border-color: var(--accent); color: var(--text); }
+
+        @media (max-width: 480px) {
+          .card { padding: 1.75rem 1.25rem; }
+          .row { grid-template-columns: 1fr; }
+        }
+      `}</style>
+    </main>
   );
 }
