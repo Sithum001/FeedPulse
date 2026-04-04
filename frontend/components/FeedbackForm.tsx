@@ -2,6 +2,7 @@
 
 import { useState, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
+import './FeedbackForm.css';
 
 interface FormData {
   title: string;
@@ -121,7 +122,7 @@ export default function FeedbackForm({ onSuccess }: FeedbackFormProps) {
       : 'char-counter good';
 
   return (
-    <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <form onSubmit={handleSubmit} noValidate className="feedback-form">
 
       {/* Title */}
       <div className="field">
@@ -170,7 +171,7 @@ export default function FeedbackForm({ onSuccess }: FeedbackFormProps) {
           <span className={counterClass}>
             {descLen} / {DESC_MAX}
             {descLen > 0 && descLen < DESC_MIN && (
-              <span style={{ color: 'var(--error)' }}>
+              <span className="min-hint">
                 {' '}(min {DESC_MIN})
               </span>
             )}
@@ -209,7 +210,7 @@ export default function FeedbackForm({ onSuccess }: FeedbackFormProps) {
       <div className="row">
         <div className="field">
           <label className="label" htmlFor="submitterName">
-            Your Name <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span>
+            Your Name <span className="optional-label">(optional)</span>
           </label>
           <input
             id="submitterName"
@@ -223,7 +224,7 @@ export default function FeedbackForm({ onSuccess }: FeedbackFormProps) {
         </div>
         <div className="field">
           <label className="label" htmlFor="submitterEmail">
-            Email <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span>
+            Email <span className="optional-label">(optional)</span>
           </label>
           <input
             id="submitterEmail"
