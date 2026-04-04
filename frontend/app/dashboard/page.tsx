@@ -67,7 +67,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const res  = await fetch(`${API_URL}/api/feedback/stats`, {
+        const res  = await fetch(`${API_URL}/api/feedback/insights/stats`, {
           headers: { Authorization: `Bearer ${getToken()}` },
         });
         const data = await res.json();

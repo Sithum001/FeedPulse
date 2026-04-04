@@ -21,6 +21,8 @@ router.post("/", createFeedback);                           // POST   /api/feedb
 // ─── Admin — static routes MUST come before /:id ─────────
 // ⚠️ If these were after /:id, Express would match "summary"
 //    and "stats" as IDs and call getFeedbackById instead.
+router.get("/insights/weekly", protect, getFeedbackSummary); // GET    /api/feedback/insights/weekly
+router.get("/insights/stats",  protect, getFeedbackStats);   // GET    /api/feedback/insights/stats
 router.get("/summary", protect, getFeedbackSummary);        // GET    /api/feedback/summary
 router.get("/stats",   protect, getFeedbackStats);          // GET    /api/feedback/stats
 
