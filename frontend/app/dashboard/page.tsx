@@ -25,7 +25,6 @@ interface Stats {
   openCount: number;
   resolvedCount: number;
   avgPriority: number | null;
-  topTags: { tag: string; count: number }[];
   sentiment: Record<string, number>;
 }
 
@@ -34,7 +33,6 @@ const sentimentCfg = {
   Neutral:  { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.2)', icon: '→' },
   Negative: { color: '#ef4444', bg: 'rgba(239,68,68,0.1)',  border: 'rgba(239,68,68,0.2)',  icon: '↓' },
 };
-const catIcon: Record<string,string> = { 'Bug':'🐛','Feature Request':'✨','Improvement':'🔧','Other':'💬' };
 const statusClr: Record<string,{color:string;bg:string}> = {
   'New':      {color:'#60a5fa',bg:'rgba(96,165,250,0.08)'},
   'In Review':{color:'#f59e0b',bg:'rgba(245,158,11,0.08)'},
@@ -42,6 +40,8 @@ const statusClr: Record<string,{color:string;bg:string}> = {
 };
 const priClr = (p?:number) => !p ? '#404060' : p>=8 ? '#ef4444' : p>=5 ? '#f59e0b' : '#22c55e';
 const fmt = (d:string) => new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+type SentimentKey = keyof typeof sentimentCfg;
+const sentimentOrder: SentimentKey[] = ['Positive', 'Neutral', 'Negative'];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -131,7 +131,32 @@ export default function DashboardPage() {
   const displayTotal    = stats?.total    ?? total;
   const displayOpen     = stats?.openCount ?? feedback.filter(f=>f.status!=='Resolved').length;
   const displayAvgPri   = stats?.avgPriority ?? null;
-  const displayTopTag   = stats?.topTags?.[0]?.tag ?? '—';
+
+  const sentimentRows = sentimentOrder.map((key) => {
+    const count = stats?.sentiment?.[key] || 0;
+    return { key, count, cfg: sentimentCfg[key] };
+  });
+  const sentimentTotal = sentimentRows.reduce((sum, row) => sum + row.count, 0);
+  const sentimentData = sentimentRows.map((row) => ({
+    ...row,
+    pct: sentimentTotal > 0 ? Math.round((row.count / sentimentTotal) * 100) : 0,
+  }));
+
+  const sentimentGradient = sentimentTotal > 0
+    ? (() => {
+        let start = 0;
+        const slices = sentimentData
+          .filter((row) => row.count > 0)
+          .map((row) => {
+            const angle = (row.count / sentimentTotal) * 360;
+            const end = start + angle;
+            const slice = `${row.cfg.color} ${start.toFixed(2)}deg ${end.toFixed(2)}deg`;
+            start = end;
+            return slice;
+          });
+        return `conic-gradient(${slices.join(', ')})`;
+      })()
+    : 'conic-gradient(#1f1f33 0deg 360deg)';
 
   return (
     <AuthGuard>
@@ -140,14 +165,13 @@ export default function DashboardPage() {
         {/* ── Sidebar ── */}
         <aside className="sidebar">
           <div className="sb-logo">
-            <span>⚡</span>
             <span className="logo-txt">FeedPulse</span>
           </div>
           <nav className="sb-nav">
-            <div className="nav-item active"><span>◈</span><span>Feedback</span></div>
+            <div className="nav-item active"><span>Feedback</span></div>
           </nav>
           <button className="logout-btn" onClick={() => { removeToken(); router.push('/login'); }}>
-            ↩ Logout
+            Logout
           </button>
         </aside>
 
@@ -169,7 +193,7 @@ export default function DashboardPage() {
               { label:'Total',        val: displayTotal                          },
               { label:'Open',         val: displayOpen                           },
               { label:'Avg Priority', val: displayAvgPri ? `${displayAvgPri}/10` : '—' },
-              { label:'Top Tag',      val: displayTopTag                         },
+              
             ].map(s => (
               <div className="stat-card" key={s.label}>
                 <span className="stat-val">{s.val}</span>
@@ -178,27 +202,31 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Sentiment breakdown (from stats) */}
-          {stats?.sentiment && Object.keys(stats.sentiment).length > 0 && (
-            <div className="sentiment-bar">
-              {(['Positive','Neutral','Negative'] as const).map(s => {
-                const count = stats.sentiment[s] || 0;
-                const total = Object.values(stats.sentiment).reduce((a,b) => a+b, 0);
-                const pct   = total > 0 ? Math.round((count/total)*100) : 0;
-                return (
-                  <div className="sent-pill" key={s}>
-                    <span style={{color: sentimentCfg[s].color}}>
-                      {sentimentCfg[s].icon} {s}
-                    </span>
-                    <span className="sent-count">{count} ({pct}%)</span>
+          {/* Sentiment breakdown */}
+          <div className="sentiment-panel">
+            <div className="sentiment-chart-wrap">
+              <div className="sentiment-donut" style={{ backgroundImage: sentimentGradient }}>
+                <div className="sentiment-center">
+                  <span className="sent-total">{sentimentTotal}</span>
+                  <span className="sent-total-label">Analyzed</span>
+                </div>
+              </div>
+            </div>
+            <div className="sentiment-legend">
+              {sentimentData.map((row) => (
+                <div className="legend-row" key={row.key}>
+                  <div className="legend-left">
+                    <span className={`legend-dot ${row.key.toLowerCase()}`} />
+                    <span className="legend-label">{row.key}</span>
                   </div>
-                );
-              })}
-              {stats.topTags.slice(0,4).map(t => (
-                <div className="top-tag-pill" key={t.tag}>#{t.tag} <span>{t.count}</span></div>
+                  <div className="legend-right">
+                    <span className="legend-count">{row.count}</span>
+                    <span className="legend-pct">{row.pct}%</span>
+                  </div>
+                </div>
               ))}
             </div>
-          )}
+          </div>
 
           {/* AI Summary Panel */}
           <SummaryPanel />
@@ -206,7 +234,7 @@ export default function DashboardPage() {
           {/* Filters */}
           <div className="filters">
             <div className="search-wrap">
-              <span className="search-ico">⌕</span>
+              <span className="search-ico">?</span>
               <input
                 className="search-input"
                 placeholder="Search title or AI summary…"
@@ -216,10 +244,10 @@ export default function DashboardPage() {
             </div>
             <select className="fselect" value={category} onChange={e => setCategory(e.target.value)}>
               <option value="">All Categories</option>
-              <option value="Bug">🐛 Bug</option>
-              <option value="Feature Request">✨ Feature Request</option>
-              <option value="Improvement">🔧 Improvement</option>
-              <option value="Other">💬 Other</option>
+              <option value="Bug">Bug</option>
+              <option value="Feature Request">Feature Request</option>
+              <option value="Improvement">Improvement</option>
+              <option value="Other">Other</option>
             </select>
             <select className="fselect" value={status} onChange={e => setStatus(e.target.value)}>
               <option value="">All Statuses</option>
@@ -234,12 +262,12 @@ export default function DashboardPage() {
             </select>
             {(category||status||search) && (
               <button className="clear-btn" onClick={() => { setCategory(''); setStatus(''); setSearch(''); }}>
-                ✕ Clear
+                Clear
               </button>
             )}
           </div>
 
-          {error && <div className="err-banner">⚠ {error}</div>}
+          {error && <div className="err-banner">{error}</div>}
 
           {/* Table */}
           <div className="table-wrap">
@@ -247,7 +275,6 @@ export default function DashboardPage() {
               <div className="center-state"><div className="spinner" /><span>Loading…</span></div>
             ) : feedback.length === 0 ? (
               <div className="center-state">
-                <span style={{fontSize:'2rem'}}>◎</span>
                 <strong>No feedback found</strong>
                 <span style={{fontSize:'.8rem',color:'#505080'}}>Try adjusting your filters</span>
               </div>
@@ -275,7 +302,7 @@ export default function DashboardPage() {
                             </div>
                           )}
                         </td>
-                        <td><span className="cat-pill">{catIcon[f.category]} {f.category}</span></td>
+                        <td><span className="cat-pill">{f.category}</span></td>
                         <td>
                           {f.ai_sentiment
                             ? <span className="sent-badge" style={{color:sentimentCfg[f.ai_sentiment].color,background:sentimentCfg[f.ai_sentiment].bg,border:`1px solid ${sentimentCfg[f.ai_sentiment].border}`}}>
@@ -305,10 +332,10 @@ export default function DashboardPage() {
                         <td onClick={e => e.stopPropagation()}>
                           <div className="acts">
                             <button className="act-btn act-re" title="Re-run AI" disabled={updatingId===f._id} onClick={() => handleReanalyze(f._id)}>
-                              {updatingId===f._id ? '…' : '⟳'}
+                              {updatingId===f._id ? '...' : 'R'}
                             </button>
                             <button className="act-btn act-del" title="Delete" disabled={deletingId===f._id} onClick={() => handleDelete(f._id)}>
-                              {deletingId===f._id ? '…' : '✕'}
+                              {deletingId===f._id ? '...' : 'X'}
                             </button>
                           </div>
                         </td>
@@ -320,23 +347,23 @@ export default function DashboardPage() {
                             <div className="exp-body">
                               {f.ai_summary && (
                                 <div className="exp-sec">
-                                  <span className="exp-lbl">⚡ AI Summary</span>
+                                  <span className="exp-lbl">AI Summary</span>
                                   <p className="exp-txt">{f.ai_summary}</p>
                                 </div>
                               )}
                               <div className="exp-sec">
-                                <span className="exp-lbl">📝 Description</span>
+                                <span className="exp-lbl">Description</span>
                                 <p className="exp-txt">{f.description}</p>
                               </div>
                               {f.submitterName && (
                                 <div className="exp-sec">
-                                  <span className="exp-lbl">👤 Submitter</span>
+                                  <span className="exp-lbl">Submitter</span>
                                   <p className="exp-txt">{f.submitterName}{f.submitterEmail && ` · ${f.submitterEmail}`}</p>
                                 </div>
                               )}
                               {!f.ai_processed && (
                                 <div className="warn-banner">
-                                  ⚠ AI not processed —
+                                  AI not processed -
                                   <button className="inline-link" onClick={() => handleReanalyze(f._id)}>run now</button>
                                 </div>
                               )}

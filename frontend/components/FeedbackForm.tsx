@@ -193,10 +193,10 @@ export default function FeedbackForm({ onSuccess }: FeedbackFormProps) {
             onChange={handleChange}
           >
             <option value="" disabled>Select a category…</option>
-            <option value="Bug">🐛 Bug</option>
-            <option value="Feature Request">✨ Feature Request</option>
-            <option value="Improvement">🔧 Improvement</option>
-            <option value="Other">💬 Other</option>
+            <option value="Bug">Bug</option>
+            <option value="Feature Request">Feature Request</option>
+            <option value="Improvement">Improvement</option>
+            <option value="Other">Other</option>
           </select>
         </div>
         {errors.category && (

@@ -58,7 +58,6 @@ export default function SummaryPanel() {
         onClick={open ? () => setOpen(false) : fetchSummary}
         disabled={loading}
       >
-        <span className="trigger-icon">⚡</span>
         <span>{loading ? 'Analyzing…' : open ? 'Hide Summary' : 'AI Weekly Summary'}</span>
         {loading && <span className="mini-spinner" />}
       </button>
@@ -74,7 +73,7 @@ export default function SummaryPanel() {
                 {summary.feedbackCount} submissions · {summary.period}
               </span>
             </div>
-            <button className="sp-close" onClick={() => setOpen(false)}>✕</button>
+            <button className="sp-close" onClick={() => setOpen(false)}>X</button>
           </div>
 
           {/* Overall insight */}
@@ -115,14 +114,14 @@ export default function SummaryPanel() {
           <div className="sp-footer">
             <span>Generated {new Date(summary.generatedAt).toLocaleString()}</span>
             <button className="sp-refresh" onClick={fetchSummary} disabled={loading}>
-              {loading ? '…' : '⟳ Regenerate'}
+              {loading ? '...' : 'Regenerate'}
             </button>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="summary-error">⚠ {error}</div>
+        <div className="summary-error">{error}</div>
       )}
     </div>
   );
