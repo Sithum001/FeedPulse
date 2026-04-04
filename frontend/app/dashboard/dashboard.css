@@ -7,17 +7,17 @@
 }
 
 :root {
-  --bg: #07070f;
-  --sur: #0d0d1a;
-  --sur2: #111120;
-  --bdr: #1a1a2e;
-  --txt: #ddddf5;
-  --mut: #58587a;
-  --acc: #5b5bd6;
-  --acc2: #7c3aed;
-  --ok: #22c55e;
-  --warn: #f59e0b;
-  --err: #ef4444;
+  --bg: #f6f8fc;
+  --sur: #ffffff;
+  --sur2: #f8fafc;
+  --bdr: #d9e2ef;
+  --txt: #1f2937;
+  --mut: #6b7280;
+  --acc: #4f46e5;
+  --acc2: #0ea5e9;
+  --ok: #16a34a;
+  --warn: #d97706;
+  --err: #dc2626;
   --sw: 220px;
 }
 
@@ -367,7 +367,7 @@ body {
 }
 
 .search-input::placeholder {
-  color: #2e2e50;
+  color: #94a3b8;
 }
 
 .search-input:focus {
@@ -418,7 +418,7 @@ body {
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: #fca5a5;
+  color: #b91c1c;
   font-size: 0.84rem;
 }
 
@@ -495,7 +495,7 @@ body {
   background: rgba(91, 91, 214, 0.1);
   border: 1px solid rgba(91, 91, 214, 0.18);
   border-radius: 100px;
-  color: #a5a5f5;
+  color: #4338ca;
 }
 
 .cat-pill {
@@ -522,13 +522,13 @@ body {
 }
 
 .dash {
-  color: #2e2e50;
+  color: #9aa5b5;
 }
 
 .status-sel {
   padding: 0.28rem 0.6rem;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.12);
   font-family: inherit;
   font-size: 0.76rem;
   font-weight: 500;
@@ -576,7 +576,7 @@ body {
 
 .act-re:hover {
   background: rgba(91, 91, 214, 0.12);
-  color: #a5a5f5;
+  color: #4338ca;
   border-color: var(--acc);
 }
 
@@ -745,7 +745,7 @@ body {
 .pg-num.active {
   background: rgba(91, 91, 214, 0.15);
   border-color: var(--acc);
-  color: #a5a5f5;
+  color: #4338ca;
   font-weight: 600;
 }
 

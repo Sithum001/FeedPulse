@@ -7,15 +7,15 @@
 }
 
 :root {
-  --bg: #0a0a0f;
-  --surface: #12121a;
-  --border: #1e1e2e;
-  --border-focus: #5b5bd6;
-  --text: #e8e8f0;
-  --muted: #7070a0;
-  --accent: #5b5bd6;
-  --accent-2: #7c3aed;
-  --error: #ef4444;
+  --bg: #f6f8fc;
+  --surface: #ffffff;
+  --border: #d9e2ef;
+  --border-focus: #4f46e5;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --accent: #4f46e5;
+  --accent-2: #0ea5e9;
+  --error: #dc2626;
   --radius: 14px;
   --radius-sm: 8px;
 }
@@ -137,7 +137,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 2.25rem;
-  box-shadow: 0 0 0 1px rgba(91, 91, 214, 0.06), 0 24px 64px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.08), 0 14px 36px rgba(15, 23, 42, 0.1);
 }
 
 .card-header {
@@ -192,7 +192,7 @@ body {
 }
 
 .input::placeholder {
-  color: #3a3a5a;
+  color: #94a3b8;
 }
 
 .input:focus {
@@ -206,7 +206,7 @@ body {
   border-radius: var(--radius-sm);
   padding: 0.7rem 1rem;
   font-size: 0.85rem;
-  color: #fca5a5;
+  color: #b91c1c;
   display: flex;
   align-items: center;
   gap: 0.4rem;
