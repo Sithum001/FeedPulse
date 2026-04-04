@@ -36,7 +36,7 @@ export default function SummaryPanel() {
   const fetchSummary = async () => {
     setLoading(true); setError('');
     try {
-      const res = await fetch(`${API_URL}/api/feedback/summary`, {
+      const res = await fetch(`${API_URL}/api/feedback/insights/weekly`, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await res.json();
