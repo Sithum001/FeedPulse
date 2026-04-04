@@ -3,6 +3,7 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { isLoggedIn, verifyToken, removeToken } from '@/lib/auth';
+import './AuthGuard.css';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -38,23 +39,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     return (
       <div className="auth-checking">
         <div className="auth-spinner" />
-        <style jsx>{`
-          .auth-checking {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0a0a0f;
-          }
-          .auth-spinner {
-            width: 32px; height: 32px;
-            border: 3px solid #1e1e2e;
-            border-top-color: #5b5bd6;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-          }
-          @keyframes spin { to { transform: rotate(360deg); } }
-        `}</style>
       </div>
     );
   }

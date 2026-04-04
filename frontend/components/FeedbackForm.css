@@ -1,0 +1,14 @@
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.min-hint {
+  color: var(--error);
+}
+
+.optional-label {
+  color: var(--muted);
+  font-weight: 400;
+}
